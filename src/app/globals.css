@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +28,88 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html, body {
+  background-color: #1e1e2e; /* VS Code dark */
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 8px;
+}
+
+.prose h1 {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.prose pre {
+  border-radius: 8px;
+  padding: 12px;
+}
+
+pre, code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.problem-container {
+  @apply text-[15px] leading-relaxed;
+}
+
+.problem-container h1 {
+  @apply text-2xl font-bold mb-4;
+}
+
+.problem-container h2 {
+  @apply text-lg font-semibold mt-6 mb-2;
+}
+
+.problem-container p {
+  @apply my-3;
+}
+
+.problem-container pre.custom-codeblock {
+  @apply bg-[#f1f5f9] border border-gray-300 rounded-lg p-4 text-sm font-mono overflow-auto my-4 whitespace-pre;
+}
+
+.problem-container code:not(.custom-codeblock) {
+  @apply bg-gray-100 px-1 py-0.5 rounded  font-mono text-lg;
+}
+
+.problem-container hr {
+  @apply border-t border-gray-400 my-6;
+}
+
+
+/* in your global.css or module.css */
+.rjv .__rjv_value_string {
+  color: #1e4e8c; /* modern blue for strings */
+}
+.rjv .__rjv_arrow {
+  fill: #888888;
+}
+.rjv {
+  background-color: #fdfdfd;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Remove default outline on focus */
+.ProseMirror:focus {
+  outline: none !important;
+  box-shadow: none;
+}
+
+/* Optional: remove any border added on click */
+.problem-container:focus-within {
+  outline: none;
+  border: none;
+  box-shadow: none;
 }
