@@ -1,7 +1,12 @@
-// app/dummy/page.tsx
+'use client'
+
+import { signOut } from "next-auth/react";
 import React from "react";
 
 export default function DummyPage() {
+  const logOut = () =>{
+    signOut()
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-10">
       <h1 className="text-3xl font-bold">🚀 Dummy Page</h1>
@@ -10,10 +15,10 @@ export default function DummyPage() {
       </p>
 
       <button
-        // onClick={() => alert("Clicked!")}
+        onClick={logOut}
         className="mt-4 px-4 py-2 rounded bg-black text-white"
       >
-        Click Me
+        sign out
       </button>
     </div>
   );
