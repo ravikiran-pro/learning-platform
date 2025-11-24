@@ -1,25 +1,31 @@
-'use client'
+import ContinueLearningCard from "@/components/Dashboard/ContinueLearningCard";
+import HeaderNav from "@/components/Dashboard/HeaderNav";
+import PerformanceChartCard from "@/components/Dashboard/PerformanceChartCard";
+import ProgressOverview from "@/components/Dashboard/ProgressOverview";
+import SkillInsightsCard from "@/components/Dashboard/SkillInsightsCard";
+import UpcomingTasksCard from "@/components/Dashboard/UpcomingTasksCard";
 
-import { signOut } from "next-auth/react";
-import React from "react";
-
-export default function DummyPage() {
-  const logOut = () =>{
-    signOut()
-  }
+export default function Dashboard() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-10">
-      <h1 className="text-3xl font-bold">🚀 Dummy Page</h1>
-      <p className="mt-2 text-gray-600">
-        This is a placeholder page. You can now start building!
-      </p>
+    <div className="min-h-screen bg-gray-200">
+      <main className="max-w-6xl mx-auto p-8">
+        <HeaderNav />
 
-      <button
-        onClick={logOut}
-        className="mt-4 px-4 py-2 rounded bg-black text-white"
-      >
-        sign out
-      </button>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-8">
+          {/* Left Side – Main */}
+          <div className="lg:col-span-3 space-y-6">
+            <ProgressOverview />
+            <ContinueLearningCard />
+          </div>
+
+          {/* Right Side – Side Panel */}
+          <div className="lg:col-span-2 space-y-6">
+            <PerformanceChartCard />
+            <SkillInsightsCard />
+            <UpcomingTasksCard />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

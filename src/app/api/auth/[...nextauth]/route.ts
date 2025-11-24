@@ -4,6 +4,7 @@ import { Session, User } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 const handler = NextAuth({
@@ -51,25 +52,27 @@ const handler = NextAuth({
         }),
     ],
 
-    session: { strategy: "jwt" , maxAge: 30 * 24 * 60 * 60,},
+    session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60, },
 
     callbacks: {
-        async jwt({ token, user }: { token: JWT; user?: any }) {
-            if (user) {
-                token.id = user.id;
-                token.email = user.email;
-                token.name = user.name;
-                token.provider = user.provider;
-                token.role = user.role ?? "USER";
-                token.avatar = user.image ?? null;
+        async jwt({ token, user }) {
+            const email = user?.email ?? token.email;
+
+            const dbUser = await prisma.user.findUnique({ where: { email: String(email) } });
+
+            if (dbUser) {
+                token.id = dbUser.id;
+                token.email = dbUser.email;
+                token.name = dbUser.name as string | undefined;
+                token.role = dbUser.role;
+                token.provider = dbUser.provider;
+                token.avatar = dbUser.avatar;
             }
+
             return token;
         },
 
-        async session({ session, token }: {
-            session: Session;
-            token: JWT;
-        }) {
+        async session({ session, token }) {
             session.user.id = token.id as string;
             session.user.email = token.email as string;
             session.user.name = token.name as string;
@@ -79,13 +82,39 @@ const handler = NextAuth({
             return session;
         },
 
-        async signIn({ user, account }: { user: any; account: any | null }) {
+        async signIn({ user, account, credentials }) {
             if (!user.email) return false;
 
+            // Check if login via Credentials
+            if (account?.provider === "credentials") {
+                const existingUser = await prisma.user.findUnique({
+                    where: { email: user.email },
+                });
+
+                if (!existingUser) throw new Error("User not found");
+
+                if (!existingUser.password) {
+                    throw new Error("This account uses social login. Please use GitHub/LinkedIn.");
+                }
+
+                const password = String(credentials?.password || "");
+                const isValid = await bcrypt.compare(password, existingUser.password!);
+
+                if (!isValid) throw new Error("Invalid email or password");
+
+                user.id = existingUser.id;
+                user.provider = existingUser.provider;
+                user.role = existingUser.role;
+                return true;
+            }
+
+            // Social login logic (Github, LinkedIn)
             let existingUser = await prisma.user.findUnique({
                 where: { email: user.email },
             });
+
             if (!existingUser) {
+                // Social login auto-register
                 existingUser = await prisma.user.create({
                     data: {
                         email: user.email,
@@ -102,7 +131,8 @@ const handler = NextAuth({
             user.role = existingUser.role;
 
             return true;
-        },
+        }
+
     },
 
     secret: process.env.NEXTAUTH_SECRET,

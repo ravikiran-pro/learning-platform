@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import AuthLayout from "@/components/AuthLayout";
-import { AuthInput } from "@/components/AuthInput";
-import { AuthButton } from "@/components/AuthButton";
-import { OAuthButtons } from "@/components/OAuthButtons";
+import AuthLayout from "@/components/Auth/AuthLayout";
+import { AuthInput } from "@/components/Auth/AuthInput";
+import { AuthButton } from "@/components/Auth/AuthButton";
+import { OAuthButtons } from "@/components/Auth/OAuthButtons";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
