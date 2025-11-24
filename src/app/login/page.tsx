@@ -6,10 +6,10 @@ import AuthLayout from "@/components/AuthLayout";
 import { AuthInput } from "@/components/AuthInput";
 import { AuthButton } from "@/components/AuthButton";
 import { OAuthButtons } from "@/components/OAuthButtons";
-import { useRouter } from "next/navigation"; // ✅ CHANGE THIS
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter(); // 👍 Now valid with App Router
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

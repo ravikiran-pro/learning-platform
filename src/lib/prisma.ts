@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-
-console.log(process.env.NODE_ENV)
 declare global {
   // This tells TS that `global` can have `prisma`
   // eslint-disable-next-line no-var

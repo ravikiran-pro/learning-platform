@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
       expected: record.expected
     };
 
-    // 🧪 Run using the test runner
     const results = runTests(problem, code);
 
     console.log(results)
