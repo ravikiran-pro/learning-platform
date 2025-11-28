@@ -1,19 +1,18 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+
 declare global {
   // This tells TS that `global` can have `prisma`
   // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
-});
 
+// No adapter, no PrismaPg in Prisma v6
 export const prisma =
   global.prisma ??
   new PrismaClient({
-    adapter,
-    log: ["error","warn"],
+    log: ["error", "warn"], // You can also add "query" if needed
   });
 
-global.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}

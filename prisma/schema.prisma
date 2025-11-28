@@ -4,23 +4,19 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-enum UserRole {
-  USER
-  ADMIN
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  provider  String   @default("credentials")  // <- ADD
-  avatar    String?                          // <- ADD
-  role      UserRole @default(USER)          // <- ADD
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  password   String?
+  provider   String   @default("credentials")
+  avatar     String?
+  role       UserRole @default(USER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   isVerified Boolean  @default(false)
 
   @@map("user")
@@ -34,4 +30,98 @@ model OtpVerification {
   createdAt DateTime @default(now())
 
   @@map("otp_verification")
+}
+
+model Track {
+  id          String   @id @default(uuid()) @map("id")
+  title       String   @map("title")
+  slug        String   @unique @map("slug")
+  description String?  @map("description")
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdBy   String   @map("created_by")
+  updatedBy   String?  @map("updated_by")
+  modules     Module[]
+
+  @@map("tracks")
+}
+
+model Module {
+  id          String    @id @default(uuid()) @map("id")
+  trackId     String    @map("track_id")
+  title       String    @map("title")
+  description String?   @map("description")
+  order       Int?      @map("order_index")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  createdBy   String    @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  chapters    Chapter[]
+  track       Track     @relation(fields: [trackId], references: [id])
+
+  @@map("modules")
+}
+
+model Chapter {
+  id          String    @id @default(uuid()) @map("id")
+  moduleId    String    @map("module_id")
+  title       String    @map("title")
+  description String?   @map("description")
+  order       Int?      @map("order_index")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  createdBy   String    @map("created_by")
+  updatedBy   String?   @map("updated_by")
+  module      Module    @relation(fields: [moduleId], references: [id])
+  sections    Section[]
+
+  @@map("chapters")
+}
+
+model Section {
+  id                String                @id @default(uuid()) @map("id")
+  chapterId         String                @map("chapter_id")
+  title             String                @map("title")
+  slug              String                @unique @map("slug")
+  description       String?               @map("description")
+  order             Int?                  @map("order_index")
+  difficulty        Difficulty?           @map("difficulty")
+  tags              String[]              @map("tags")
+  contentDocumentId String                @map("content_document_id")
+  createdAt         DateTime              @default(now()) @map("created_at")
+  createdBy         String                @map("created_by")
+  updatedBy         String?               @map("updated_by")
+  chapter           Chapter               @relation(fields: [chapterId], references: [id])
+  activity          UserSectionActivity[]
+
+  @@map("sections")
+}
+
+model UserSectionActivity {
+  id              String         @id @default(uuid()) @map("id")
+  userId          String         @map("user_id")
+  sectionId       String         @map("section_id")
+  status          ActivityStatus @map("status")
+  lastAccessed    DateTime       @default(now()) @map("last_accessed")
+  score           Int?           @map("score")
+  bookmarked      Boolean        @default(false) @map("bookmarked")
+  notesDocumentId String?        @map("notes_document_id")
+  section         Section        @relation(fields: [sectionId], references: [id])
+
+  @@unique([userId, sectionId])
+  @@map("user_section_activity")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ActivityStatus {
+  VISITED
+  COMPLETED
+  SOLVED
 }

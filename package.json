@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@hocuspocus/transformer": "^3.4.0",
     "@monaco-editor/react": "^4.7.0",
     "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
     "@tiptap/extension-code-block-lowlight": "^3.11.0",
     "@tiptap/react": "^3.11.0",
     "@tiptap/starter-kit": "^3.11.0",
@@ -39,6 +41,7 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
+    "@prisma/client": "^6.19.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
     "@types/bcryptjs": "^2.4.6",
@@ -51,7 +54,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "postcss": "^8.5.6",
-    "prisma": "^7.0.0",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4.1.17",
     "turbo": "^2.6.1",
     "typescript": "^5"
