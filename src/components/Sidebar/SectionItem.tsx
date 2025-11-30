@@ -15,7 +15,7 @@ export default function SectionItem({ sec, mod, chap, isSelected, onSelectSectio
         onSelectSection({
           module: { id: mod.id, title: mod.title },
           chapter: { id: chap.id, title: chap.title },
-          section: { id: sec.id, title: sec.title },
+          section: { id: sec.id, title: sec.title, contentDocumentId: sec.contentDocumentId },
         })
       }
       className={`w-full text-left text-sm px-8 py-1 rounded ${

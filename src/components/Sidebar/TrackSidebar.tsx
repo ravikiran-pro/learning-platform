@@ -25,7 +25,7 @@ export default function TrackSidebar({ onSelectSection, selectedSection, tracks:
     onSelectSection({
       module: { id: mod.id, title: mod.title },
       chapter: { id: chapter.id, title: chapter.title },
-      section: { id: sec.id, title: sec.title },
+      section: { id: sec.id, title: sec.title, contentDocumentId: sec.contentDocumentId},
     });
   }
 }, [jsTrack?.id]); // 👈 No re-runs once stabilized
@@ -34,7 +34,7 @@ export default function TrackSidebar({ onSelectSection, selectedSection, tracks:
   if (!jsTrack?.id) return null;
 
   return (
-    <aside className="w-126 h-screen flex flex-col overflow-y-auto bg-slate-900 text-slate-100 font-sans border-r border-slate-800">
+    <aside className="w-100 h-screen flex flex-col overflow-y-auto bg-slate-900 text-slate-100 font-sans border-r border-slate-800">
       {/* Track header */}
       <div className="px-4 py-4 border-b border-slate-800">
         <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Track</p>

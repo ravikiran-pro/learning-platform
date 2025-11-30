@@ -19,6 +19,11 @@ export default function JsPage() {
   const editor = useProblemEditor("", { editable: false });
 
   const handleSelection = ({ section, chapter, module }: SelectedSection) => {
+    console.log(section.title);
+    console.log(module.title);
+    console.log(chapter.title);
+
+    console.log(section.contentDocumentId);
     setSelectedSection({
       module: {
         id: module.id,
@@ -30,7 +35,8 @@ export default function JsPage() {
       },
       section: {
         id: section.id,
-        title: section.title
+        title: section.title,
+        contentDocumentId: section.contentDocumentId
       }
     });
     return
@@ -58,22 +64,21 @@ export default function JsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("useEffect running");
-
+      if(!selectedSection?.section?.contentDocumentId || !editor) return 
       try {
-        const res = await fetch(`/api/tracks/d4414b20-6c1a-43e9-9ee8-716d2b3d8de2/${selectedSection?.section?.id}`)
+        const res = await fetch(`/api/tracks/d4414b20-6c1a-43e9-9ee8-716d2b3d8de2/${selectedSection?.section?.contentDocumentId}`)
           .then(async res => {
-            if (res.status === 200) {
-              const content = await res.text()
+            const content = await res.text()
+            if (res.status === 200 && content) {
               setSectionContent(content);
               editor.commands.setContent(content);
             } else {
               setSectionContent('');
-              editor.commands.setContent('');
+              editor.commands.setContent(null);
             }
           })
       } catch (error) {
-        console.error("Error fetching track:", error);
+        // console.error("Error fetching track:", error);
       }
     };
 
@@ -88,14 +93,14 @@ export default function JsPage() {
         selectedSection={selectedSection}
         tracks={tracks}
       />
-      <section className="flex-1 flex flex-col">
+      <section className="flex-1 flex flex-col pt-8">
         {/* Top Action Bar */}
-        <div className="flex items-center justify-between bg-gray-100 text-gray-900 px-6 py-3 border-b">
-          <h2 className="text-xl font-semibold">
+        {/* <div className="flex items-center justify-between bg-gray-100 text-gray-900 px-6 py-3 border-b"> */}
+          {/* <h2 className="text-xl font-semibold">
             {selectedSection?.section?.title || "Untitled Document"} &nbsp;
             {!section ? `( ${selectedSection?.section.id} )` : ""}
-          </h2>
-          <div className="flex gap-2">
+          </h2> */}
+          {/* <div className="flex gap-2">
             <button
               onClick={null}
               className="px-4 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -114,8 +119,8 @@ export default function JsPage() {
             >
               Save
             </button>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
 
         {/* Editor Container */}
         <div className="flex-1 problem-container p-8 bg-white text-gray-900 overflow-auto space-y-4">

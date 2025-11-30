@@ -8,8 +8,6 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     try {
 
         const { id: trackId, lDocId } = await params;
-        console.log(lDocId)
-        console.log(trackId)
 
         if (!lDocId || !trackId) throw new Error("Invalid ID");
 
@@ -25,6 +23,6 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
             headers: { "Content-Type": "text/plain" },
         });
     } catch (err: any) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        return NextResponse.json({ error: err.message }, { status: 404 });
     }
 }

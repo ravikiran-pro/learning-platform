@@ -2,127 +2,109 @@ import { WorkflowData } from "./workflowTypes";
 
 export const workflowData: WorkflowData = {
   meta: {
-    title: "Content Extraction & Summarization for Course Section",
+    title: "Content Extraction & Synthesis for Course Section",
     workflowId: "wf_content_extraction_for_section",
     input: "{ trackId, moduleId, chapterId, sectionId }",
   },
   steps: [
     {
-      title: "Step 1 · Resource Discovery",
-      id: "step1_resource_discovery",
-      agent: "ResourceDiscoveryAgent",
-      agentId: "agent_resource_discovery",
+      title: "Step 1 · Keyword Extraction",
+      id: "search-keyword-extractor",
+      agent: "ResourceDiscoveryAgentInstance",
+      agentId: "ws_keyword_extractor",
+      description: "Extract and construct optimized search keywords from section context for web content discovery.",
       tools: [
         {
           name: "sectionContextFetchTool",
           id: "tool_section_context_fetch",
-          desc: "Fetch section metadata for contextual enrichment."
+          desc: "Fetch section metadata for contextual enrichment (track, module, chapter, section details)."
         },
         {
           name: "queryConstructionTool",
           id: "tool_query_construction",
-          desc: "Generate multiple optimized search queries."
-        },
-        {
-          name: "webSearchTool",
-          id: "tool_web_search",
-          desc: "Perform web search and retrieve resource candidates."
+          desc: "Clean and validate AI-generated search keywords (removes duplicates, filters short keywords)."
         },
       ],
-      input: "userInput",
-      output: "candidateResources[]",
+      input: "{ trackId, moduleId, chapterId, sectionId }",
+      output: "{ sectionContext, queryConstructed }",
     },
     {
-      title: "Step 2 · Resource Validation",
-      id: "step2_resource_validation",
-      agent: "ResourceValidationAgent",
-      agentId: "agent_resource_validation",
-      foreach: "candidateResources (concurrency = 2)",
+      title: "Step 2 · Resource Search & Validation",
+      id: "resource-search-validator",
+      agent: "WebSearchAgentInstance",
+      agentId: "web-search-agent",
+      description: "Search, validate, and consolidate authoritative educational resources by scraping and quality-checking URLs.",
       tools: [
         {
-          name: "resourceDeduplicationTool",
-          id: "tool_resource_deduplication",
-          desc: "Remove duplicate or similar resource entries."
+          name: "webSearch",
+          id: "openai-web-search",
+          desc: "OpenAI web search tool to find educational resources using keywords and context."
         },
         {
-          name: "resourceScrapeValidationTool",
-          id: "tool_resource_scrape_validation",
-          desc: "Scrape webpage, validate accessibility & content quality."
+          name: "resourceValidationTool",
+          id: "resource-validation-tool",
+          desc: "Scrapes and validates content from URLs. Returns validation status, scrap_content_id, and stores in MongoDB."
         },
         {
-          name: "resourceDatabaseUpdateTool",
-          id: "tool_resource_database_update",
-          desc: "Save verified resource metadata to database (MongoDB)."
+          name: "resourceConsolidateTool",
+          id: "result-consolidation-tool",
+          desc: "Filters and consolidates validated resources (keeps only resources where validate === true)."
         },
       ],
-      input: "candidateResources[]",
-      output: "validatedResources[]",
+      input: "{ sectionContext, queryConstructed }",
+      output: "{ sectionContext, resources[] }",
     },
     {
       title: "Step 3 · Content Extraction",
-      id: "step3_content_extraction",
-      agent: "ContentExtractionAgent",
-      agentId: "agent_content_extraction",
-      foreach: "validatedResources (isValid)",
+      id: "content-extractor",
+      agent: "ContentExtractorAgentInstance",
+      agentId: "content-extraction-agent",
+      description: "Extract and process relevant content from validated scraped resources using AI filtering and structuring.",
       tools: [
         {
-          name: "scrapedDocumentRetrievalTool",
-          id: "tool_scraped_document_retrieval",
-          desc: "Retrieve stored scraped document using resourceId."
+          name: "getScrapedContentTool",
+          id: "get-scrapped-content",
+          desc: "Retrieve scraped content from database using scrap_content_id from validated resources."
         },
         {
-          name: "semanticContentExtractionTool",
-          id: "tool_semantic_content_extraction",
-          desc: "Extract topic-relevant insights using contextual LLM filtering."
+          name: "storeExtractedDocumentTool",
+          id: "store-extracted-document-tool",
+          desc: "Store (or update) extracted JSON content into extract_documents collection for a given document_id."
         },
         {
-          name: "rawTextCleaningTool",
-          id: "tool_raw_text_cleaning",
-          desc: "Clean and extract raw content for reference (non-filtered)."
+          name: "webSearch",
+          id: "openai-web-search-optional",
+          desc: "Optional web search for complementing missing parts if scraped content is insufficient."
         },
       ],
-      input: "validatedResources[] (isValid)",
-      output: "extractedContents[]",
+      input: "{ sectionContext, resources[] }",
+      output: "{ sectionContext, resources[], dump }",
     },
     {
-      title: "Step 4 · Content Synthesis",
-      id: "step4_content_synthesis",
-      agent: "ContentSynthesisAgent",
-      agentId: "agent_content_synthesis",
+      title: "Step 4 · Content Synthesis & Iterative Review",
+      id: "synthesis-content",
+      agent: "ContentWriterAgentInstance + contentReviewerAgent",
+      agentId: "content-writer-agent, content-reviewer-agent",
+      description: "Synthesize educational content from extracted data and perform iterative AI review with writer and reviewer agents.",
       tools: [
         {
-          name: "existingContentFetchTool",
-          id: "tool_existing_content_fetch",
-          desc: "Retrieve previous section content & vector embeddings."
+          name: "fetchTrackDetailsTool",
+          id: "tool_query_construction",
+          desc: "Fetch complete track hierarchy structure (all modules, chapters, sections) to understand course context."
         },
         {
-          name: "summaryContextBuilderTool",
-          id: "tool_summary_context_builder",
-          desc: "Combine extracted + existing content and structure prompts."
+          name: "fetchAllRelevantEmbeddings",
+          id: "get-relevant-embeddings-documents",
+          desc: "Retrieve relevant embeddings from track-specific documents collection to prevent content duplication."
         },
         {
-          name: "markdownSummaryGenerationTool",
-          id: "tool_markdown_summary_generation",
-          desc: "Generate LLM-based structured markdown summary."
+          name: "webSearch",
+          id: "openai-web-search-optional",
+          desc: "Optional web search for reference when writing content for learning platform."
         },
       ],
-      input: "sectionContext + extractedContents + existingSection",
-      output: "sectionSummaryDraft",
-    },
-    {
-      title: "Step 5 · Human Review",
-      id: "step5_human_review",
-      agent: "ReviewAgent",
-      agentId: "agent_review",
-      tools: [
-        {
-          name: "sectionContentPersistenceTool",
-          id: "tool_section_content_persistence",
-          desc: "Persist final approved content to course section record."
-        },
-      ],
-      input: "sectionSummaryDraft + extractedContents",
-      output: "humanReviewResult",
+      input: "{ sectionContext, resources[], dump }",
+      output: "{ syntheses }",
     },
   ],
 };

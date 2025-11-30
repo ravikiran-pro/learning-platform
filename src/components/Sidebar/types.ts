@@ -2,6 +2,7 @@ export type Section = {
   id: string;
   title: string;
   slug: string;
+  contentDocumentId: string;
 };
 
 export type Chapter = {
@@ -25,5 +26,5 @@ export type Track = {
 export type SelectedSection = {
   module: Pick<Module, "id" | "title">;
   chapter: Pick<Chapter, "id" | "title">;
-  section: Pick<Section, "id" | "title">;
+  section: Pick<Section, "id" | "title" | "contentDocumentId">;
 };
